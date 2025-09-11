@@ -2,6 +2,7 @@
 
 namespace Backstage\FilamentMails\Resources;
 
+use Backstage\FilamentMails\FilamentMailsPlugin;
 use Backstage\FilamentMails\Resources\MailResource\Pages\ListMails;
 use Backstage\FilamentMails\Resources\MailResource\Pages\ViewMail;
 use Backstage\FilamentMails\Resources\MailResource\Widgets\MailStatsWidget;
@@ -41,6 +42,8 @@ class MailResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'subject';
 
+    protected static bool $isScopedToTenant = false;
+
     protected static bool $shouldRegisterNavigation = true;
 
     protected static ?string $tenantOwnershipRelationshipName = 'tenant';
@@ -48,6 +51,11 @@ class MailResource extends Resource
     public static function isScopedToTenant(): bool
     {
         return config('mails.tenant.enabled');
+    }
+
+    public static function canAccess(): bool
+    {
+        return FilamentMailsPlugin::get()->userCanManageMails();
     }
 
     public static function getModel(): string
@@ -88,6 +96,7 @@ class MailResource extends Resource
                     ->icon('heroicon-o-envelope')
                     ->compact()
                     ->collapsible()
+                    ->columnSpanFull()
                     ->schema([
                         Tabs::make('')
                             ->schema([
@@ -100,22 +109,22 @@ class MailResource extends Resource
                                                     ->label(__('Subject')),
                                                 TextEntry::make('from')
                                                     ->label(__('From'))
-                                                    ->getStateUsing(fn (Mail $record) => self::formatMailState($record->from)),
+                                                    ->formatStateUsing(fn (Mail $record) => self::formatMailState($record->from)),
                                                 TextEntry::make('to')
                                                     ->label(__('Recipient(s)'))
-                                                    ->getStateUsing(fn (Mail $record) => self::formatMailState($record->to)),
+                                                    ->formatStateUsing(fn (Mail $record) => self::formatMailState($record->to)),
                                                 TextEntry::make('cc')
                                                     ->label(__('CC'))
                                                     ->default('-')
-                                                    ->getStateUsing(fn (Mail $record) => self::formatMailState($record->cc ?? [])),
+                                                    ->formatStateUsing(fn (Mail $record) => self::formatMailState($record->cc ?? [])),
                                                 TextEntry::make('bcc')
                                                     ->label(__('BCC'))
                                                     ->default('-')
-                                                    ->getStateUsing(fn (Mail $record) => self::formatMailState($record->bcc ?? [])),
+                                                    ->formatStateUsing(fn (Mail $record) => self::formatMailState($record->bcc ?? [])),
                                                 TextEntry::make('reply_to')
                                                     ->default('-')
                                                     ->label(__('Reply To'))
-                                                    ->getStateUsing(fn (Mail $record) => self::formatMailState($record->reply_to ?? [])),
+                                                    ->formatStateUsing(fn (Mail $record) => self::formatMailState($record->reply_to ?? [])),
                                             ]),
                                     ]),
                                 Tab::make(__('Statistics'))
@@ -244,10 +253,8 @@ class MailResource extends Resource
                         Tabs::make('Content')
                             ->label(__('Content'))
                             ->columnSpanFull()
-                            ->extraAttributes(['class' => 'w-full max-w-full'])
                             ->tabs([
                                 Tab::make('Preview')
-                                    ->extraAttributes(['class' => 'w-full max-w-full'])
                                     ->schema([
                                         TextEntry::make('html')
                                             ->hiddenLabel()
@@ -291,6 +298,7 @@ class MailResource extends Resource
                     ->icon('heroicon-o-paper-clip')
                     ->compact()
                     ->collapsible()
+                    ->columnSpanFull()
                     ->schema([
                         TextEntry::make('attachments')
                             ->hiddenLabel()
@@ -312,7 +320,7 @@ class MailResource extends Resource
                                             ->label(__('Mime Type')),
                                         ViewEntry::make('uuid')
                                             ->label(__('Download'))
-                                            ->getStateUsing(fn ($record) => $record)
+                                            ->formatStateUsing(fn ($record) => $record)
                                             ->view('filament-mails::mails.download'),
                                     ]),
                             ]),
@@ -350,16 +358,16 @@ class MailResource extends Resource
                     ->limit(35)
                     ->sortable()
                     ->searchable(['subject', 'html', 'text']),
-                IconColumn::make('attachments')
-                    ->label('')
-                    ->alignLeft()
-                    ->searchable(false)
-                    ->getStateUsing(fn (Mail $record) => $record->attachments->count() > 0)
-                    ->icon(fn (string $state): string => $state ? 'heroicon-o-paper-clip' : ''),
+                // IconColumn::make('attachments')
+                //     ->label('')
+                //     ->alignLeft()
+                //     ->searchable(false)
+                //     ->formatStateUsing(fn (Mail $record) => $record->attachments->count() > 0)
+                //     ->getIcon(fn (string $state): string => $state ? 'heroicon-o-paper-clip' : ''),
                 TextColumn::make('to')
                     ->label(__('Recipient(s)'))
                     ->limit(50)
-                    ->getStateUsing(fn (Mail $record) => self::formatMailState(emails: $record->to, mailOnly: true))
+                    ->formatStateUsing(fn (Mail $record) => self::formatMailState(emails: $record->to, mailOnly: true))
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('opens')
