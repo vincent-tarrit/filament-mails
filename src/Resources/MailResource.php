@@ -38,6 +38,8 @@ class MailResource extends Resource
 
     protected static bool $shouldRegisterNavigation = true;
 
+    protected static ?string $tenantOwnershipRelationshipName = 'tenant';
+
     public function isScopedByTenant(): bool {
         return config('mails.tenant.enabled');
     }
