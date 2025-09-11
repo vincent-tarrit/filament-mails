@@ -41,9 +41,14 @@ class MailResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'subject';
 
-    protected static bool $isScopedToTenant = false;
-
     protected static bool $shouldRegisterNavigation = true;
+
+    protected static ?string $tenantOwnershipRelationshipName = 'tenant';
+
+    public static function isScopedToTenant(): bool
+    {
+        return config('mails.tenant.enabled');
+    }
 
     public static function getModel(): string
     {
