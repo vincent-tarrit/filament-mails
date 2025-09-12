@@ -341,6 +341,7 @@ class MailResource extends Resource
                     ->sortable()
                     ->searchable(false)
                     ->badge()
+                    ->formatStateUsing(fn($state) => __(ucfirst(str_replace('_', ' ', $state))))
                     ->color(fn (string $state): string => match ($state) {
                         __('Soft Bounced') => 'warning',
                         __('Hard Bounced') => 'danger',
