@@ -28,11 +28,11 @@ class FilamentMailsPlugin implements Plugin
             ->colors([
                 'clicked' => Color::Purple,
             ])
-            ->resources([
+            ->resources(array_filter([
                 config('filament-mails.resources.mail', MailResource::class),
-                config('filament-mails.resources.event', EventResource::class),
-                config('filament-mails.resources.suppression', SuppressionResource::class),
-            ]);
+                config('filament-mails.resources.event'),
+                config('filament-mails.resources.suppression'),
+            ]));
     }
 
     public function boot(Panel $panel): void
