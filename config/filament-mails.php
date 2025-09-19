@@ -13,5 +13,10 @@ return [
 
     'navigation' => [
         'group' => null,
+        'label' => 'Emails',
     ],
+
+    'labels' => [
+        'mails' => 'Emails',
+    ]
 ];
