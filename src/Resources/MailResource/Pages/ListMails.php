@@ -24,7 +24,7 @@ class ListMails extends ListRecords
 
     public function getTitle(): string
     {
-        return __('Emails');
+        return config('filament-mails.navigation.label', __('Emails'));
     }
 
     protected function getActions(): array
