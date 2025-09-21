@@ -85,7 +85,7 @@ class MailResource extends Resource
 
     public function getTitle(): string
     {
-        return __('Emails');
+        return config('filament-mails.navigation.label', __('Emails'));
     }
 
     public static function infolist(Schema $schema): Schema
